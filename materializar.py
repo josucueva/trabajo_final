@@ -71,7 +71,10 @@ REGION_MAP = {
 
 
 def slugify(name):
+    import hashlib
     s = name.lower().strip()
+    if any(ord(c) > 127 for c in s):
+        return 'u_' + hashlib.md5(name.encode('utf-8')).hexdigest()[:12]
     s = re.sub(r'[^a-z0-9]+', '_', s)
     return s.strip('_')
 

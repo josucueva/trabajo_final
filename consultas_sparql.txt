@@ -1,0 +1,86 @@
+-- 1. LIBRE — Juegos con fechas de lanzamiento por región + ventas
+PREFIX ex: <http://example.org/videojuegos#>
+SELECT ?nombre ?plataforma ?region ?fecha ?ventas WHERE {
+  ?juego a ex:Videojuego ;
+         ex:nombre ?nombre .
+  ?juego ex:tieneLanzamiento ?lanz .
+  ?lanz ex:enPlataforma ?plat .
+  ?plat ex:nombre ?plataforma .
+  ?lanz ex:fechaLanzamiento ?lr .
+  ?lr ex:region ?region ;
+      ex:fecha ?fecha .
+  OPTIONAL {
+    ?lanz ex:tieneVenta ?v .
+    ?v ex:monto ?ventas .
+  }
+}
+ORDER BY ?nombre ?region
+LIMIT 30
+
+-- 2. AGREGACIÓN (SUM) — Top 10 juegos más vendidos con su desarrollador
+PREFIX ex: <http://example.org/videojuegos#>
+SELECT ?nombre (SUM(?monto) AS ?ventas_totales) ?desarrollador WHERE {
+  ?juego a ex:Videojuego ;
+         ex:nombre ?nombre ;
+         ex:desarrolladoPor ?dev .
+  ?dev ex:nombre ?desarrollador .
+  ?juego ex:tieneLanzamiento ?lanz .
+  ?lanz ex:tieneVenta ?v .
+  ?v ex:monto ?monto .
+}
+GROUP BY ?nombre ?desarrollador
+ORDER BY DESC(?ventas_totales)
+LIMIT 10
+
+-- 3. GROUP BY + HAVING — Estudios que desarrollaron para ≥2 plataformas distintas
+PREFIX ex: <http://example.org/videojuegos#>
+SELECT ?desarrollador (COUNT(DISTINCT ?plataforma) AS ?plataformas) WHERE {
+  ?dev a ex:Desarrollador ;
+       ex:nombre ?desarrollador .
+  ?juego ex:desarrolladoPor ?dev ;
+         ex:tieneLanzamiento ?lanz .
+  ?lanz ex:enPlataforma ?plataforma .
+}
+GROUP BY ?desarrollador
+HAVING (?plataformas >= 2)
+ORDER BY DESC(?plataformas)
+LIMIT 20
+
+-- 4. PROPERTY PATHS (/) — Desarrolladores que publican sus propios juegos
+PREFIX ex: <http://example.org/videojuegos#>
+SELECT DISTINCT ?dev ?nombre WHERE {
+  ?dev a ex:Desarrollador ; ex:nombre ?nombre .
+  ?juego ex:desarrolladoPor ?dev .
+  ?juego ex:tieneLanzamiento / ex:publicadoPor / ex:nombre ?nombre .
+}
+LIMIT 20
+
+-- 5. FILTER NOT EXISTS — Juegos sin género asignado
+PREFIX ex: <http://example.org/videojuegos#>
+SELECT ?juego ?nombre WHERE {
+  ?juego a ex:Videojuego ;
+         ex:nombre ?nombre .
+  FILTER NOT EXISTS { ?juego ex:perteneceAGenero ?genero . }
+}
+LIMIT 20
+
+-- 6. INSERT/DELETE — Corregir venta regional de Wii Sports (NA: 41.49 → 41.5)
+-- Nota: no se escriben ceros (materializar.py filtra campo > 0)
+PREFIX ex: <http://example.org/videojuegos#>
+DELETE { ?v ex:monto 41.49 }
+INSERT { ?v ex:monto 41.50 }
+WHERE {
+  ?juego ex:nombre "Wii Sports" .
+  ?juego ex:tieneLanzamiento ?lanz .
+  ?lanz ex:tieneVenta ?v .
+  ?v ex:monto 41.49 .
+}
+
+-- Verificación del UPDATE
+PREFIX ex: <http://example.org/videojuegos#>
+SELECT ?v ?monto WHERE {
+  ?juego ex:nombre "Wii Sports" .
+  ?juego ex:tieneLanzamiento ?lanz .
+  ?lanz ex:tieneVenta ?v .
+  ?v ex:monto ?monto .
+}
