@@ -79,6 +79,13 @@ def slugify(name):
     return s.strip('_')
 
 
+DEV_NORMALIZE = {
+    "CAPCOM Co., Ltd.": "Capcom",
+    "EA Digital Illusions CE": "EA DICE",
+    "EA Digital Illusions Creations Entertainment": "EA DICE",
+}
+
+
 def parse_list(val):
     if pd.isna(val) or not val:
         return []
@@ -186,7 +193,7 @@ def get_developers(src_data, steam_by_appid, console_by_id):
             if row is not None:
                 for d in parse_list(row['developers']):
                     if d:
-                        devs.add(d.strip())
+                        devs.add(DEV_NORMALIZE.get(d.strip(), d.strip()))
     for src in ['xbox', 'playstation', 'switch']:
         if src_data.get(src):
             for gid in src_data[src]:
@@ -194,7 +201,7 @@ def get_developers(src_data, steam_by_appid, console_by_id):
                 if game:
                     for d in game.get('developers', []):
                         if d:
-                            devs.add(d.strip())
+                            devs.add(DEV_NORMALIZE.get(d.strip(), d.strip()))
     return sorted(devs)
 
 
@@ -358,7 +365,7 @@ def process_doom(g, norm_name, src_data, vgsales_by_name, steam_by_appid, consol
                             genres_2016.add(gen.strip())
                     for dev in parse_list(row['developers']):
                         if dev:
-                            devs_2016.add(dev.strip())
+                            devs_2016.add(DEV_NORMALIZE.get(dev.strip(), dev.strip()))
         for src in ['xbox', 'playstation', 'switch']:
             if src_data.get(src):
                 for gid in src_data[src]:
@@ -369,7 +376,7 @@ def process_doom(g, norm_name, src_data, vgsales_by_name, steam_by_appid, consol
                                 genres_2016.add(gen.strip())
                         for dev in game.get('developers', []):
                             if dev:
-                                devs_2016.add(dev.strip())
+                                devs_2016.add(DEV_NORMALIZE.get(dev.strip(), dev.strip()))
         for gen in sorted(genres_orig):
             g_uri = get_or_create(g, genero_cache, 'G', NS.Genero, gen)
             g.add((vj_orig, NS.perteneceAGenero, g_uri))
@@ -435,24 +442,43 @@ def main():
             process_doom(g, norm_name, src_data, vgsales_by_name, steam_by_appid, console_by_id,
                          platform_uris, pc_uri, editor_cache, genero_cache, desarrollador_cache)
             continue
-        slug = slugify(norm_name)
-        vj_uri = NS[f'V_{slug}']
-        g.add((vj_uri, RDF.type, NS.Videojuego))
-        display_name = get_display_name(src_data, vgsales_by_name, steam_by_appid, console_by_id)
-        if display_name:
-            g.add((vj_uri, NS.nombre, Literal(display_name)))
-        for gen in get_genres(src_data, vgsales_by_name, steam_by_appid, console_by_id):
-            g_uri = get_or_create(g, genero_cache, 'G', NS.Genero, gen)
-            g.add((vj_uri, NS.perteneceAGenero, g_uri))
-        for dev in get_developers(src_data, steam_by_appid, console_by_id):
-            d_uri = get_or_create(g, desarrollador_cache, 'D', NS.Desarrollador, dev)
-            g.add((vj_uri, NS.desarrolladoPor, d_uri))
-        add_vgsales_lanzamientos(g, vj_uri, src_data, vgsales_by_name, platform_uris, editor_cache)
+        is_playtest = False
+        parent_norm = None
+        if norm_name.endswith(' playtest'):
+            candidate = norm_name[:-9]
+            if candidate not in DOOM_NAMES:
+                is_playtest = True
+                parent_norm = candidate
+        if is_playtest:
+            vj_uri = NS[f'V_{slugify(parent_norm)}']
+            if parent_norm not in matches:
+                g.add((vj_uri, RDF.type, NS.Videojuego))
+                pt_name = get_display_name(src_data, vgsales_by_name, steam_by_appid, console_by_id)
+                if pt_name:
+                    pt_name = pt_name.replace(' Playtest', '').replace(' playtest', '').strip()
+                if not pt_name:
+                    pt_name = parent_norm
+                g.add((vj_uri, NS.nombre, Literal(pt_name)))
+        else:
+            slug = slugify(norm_name)
+            vj_uri = NS[f'V_{slug}']
+            g.add((vj_uri, RDF.type, NS.Videojuego))
+            display_name = get_display_name(src_data, vgsales_by_name, steam_by_appid, console_by_id)
+            if display_name:
+                g.add((vj_uri, NS.nombre, Literal(display_name)))
+            for gen in get_genres(src_data, vgsales_by_name, steam_by_appid, console_by_id):
+                g_uri = get_or_create(g, genero_cache, 'G', NS.Genero, gen)
+                g.add((vj_uri, NS.perteneceAGenero, g_uri))
+            for dev in get_developers(src_data, steam_by_appid, console_by_id):
+                d_uri = get_or_create(g, desarrollador_cache, 'D', NS.Desarrollador, dev)
+                g.add((vj_uri, NS.desarrolladoPor, d_uri))
+            add_vgsales_lanzamientos(g, vj_uri, src_data, vgsales_by_name, platform_uris, editor_cache)
         add_steam_lanzamientos(g, vj_uri, src_data, steam_by_appid, pc_uri, editor_cache)
-        for src in ['xbox', 'playstation', 'switch']:
-            if src_data.get(src):
-                add_console_lanzamientos(g, vj_uri, src_data, console_by_id, src,
-                                         platform_uris[f'_{src}'], editor_cache)
+        if not is_playtest:
+            for src in ['xbox', 'playstation', 'switch']:
+                if src_data.get(src):
+                    add_console_lanzamientos(g, vj_uri, src_data, console_by_id, src,
+                                             platform_uris[f'_{src}'], editor_cache)
     output_path = os.path.join(OUTPUT_DIR, 'datos_integrados.ttl')
     print(f"Serializando a {output_path}...")
     g.serialize(output_path, format='turtle', base=str(NS)[:-1])
