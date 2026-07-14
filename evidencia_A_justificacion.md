@@ -47,3 +47,121 @@ Ninguna fuente por separado permite responder estas preguntas: requieren la comb
 ## 4. Conclusión
 
 La integración se justifica porque las tres fuentes son complementarias y no redundantes: cada una aporta atributos que las otras no tienen, ninguna comparte un identificador común, y las relaciones entre entidades (juego, lanzamiento, plataforma, desarrollador, editor) son parciales y variables según la fuente y la plataforma. Un grafo de conocimiento en RDF permite modelar esta heterogeneidad sin forzar un esquema rígido, soporta inferencia por jerarquía de clases de forma nativa, y habilita consultas (property paths, comparación entre grafos nombrados, detección de vacíos estructurales) que sobre un modelo relacional convencional requerirían lógica adicional específica para este caso, en lugar de capacidades genéricas del lenguaje de consulta.
+
+---
+
+## 5. Decisiones de modelado
+
+### 5.1. Separación `Videojuego` / `Lanzamiento`
+
+El modelo distingue dos niveles de entidad:
+
+- **`Videojuego`**: obra intelectual abstracta (p. ej., "DOOM" como concepto, independiente de la plataforma). De ella cuelgan `desarrolladoPor` y `perteneceAGenero`, porque el estudio desarrollador y el género no cambian según la plataforma de lanzamiento.
+- **`Lanzamiento`**: edición concreta del juego en una plataforma específica. De ella cuelgan `enPlataforma`, `publicadoPor`, `tieneVenta` y `fechaLanzamiento`, porque el editor, las ventas y la fecha sí varían por plataforma.
+
+Esta separación está validada por un caso real encontrado en los datos: el juego `#killallzombies` tiene el mismo desarrollador (Beatshapers) en todas las plataformas, pero editores distintos: Beatshapers (autopublicado) en PlayStation y Digerati en Xbox.
+
+### 5.2. `enPlataforma` como ObjectProperty
+
+La propiedad `enPlataforma` se definió como **ObjectProperty** (apuntando a una instancia de `:Plataforma`), no como una propiedad de dato literal. Esto permite:
+
+1. **Inferencia por jerarquía de clases**: `Consola ⊑ Plataforma` y `PC ⊑ Plataforma`. Una consulta SPARQL con `rdfs:subClassOf*` sobre `:Consola` encuentra automáticamente lanzamientos en PS2, Xbox 360, Switch, etc., sin enumerarlos explícitamente.
+2. **Reuso entre fuentes**: la instancia `:P_vg_PC` se usa tanto para lanzamientos de vgsales en PC como para todos los lanzamientos de Steam, permitiendo consultas unificadas sobre la plataforma PC.
+3. **Extensibilidad**: se pueden añadir metadatos a la plataforma (fabricante, generación, etc.) simplemente agregando tripletas a la instancia.
+
+Se crearon 34 instancias de plataforma en total:
+- **30** `:Consola` desde los códigos de vgsales (`:P_vg_PS2`, `:P_vg_X360`, etc.)
+- **3** `:Consola` desde los JSON de consolas (`:P_xbox`, `:P_playstation`, `:P_switch`)
+- **1** `:PC` reusada entre vgsales y Steam (`:P_vg_PC`)
+
+### 5.3. `tieneDemo` y `tienePlaytest`
+
+Inicialmente se contempló una clase `:Demo` separada de `:Lanzamiento`. Durante el diseño se optó por eliminarla y usar dos ObjectProperties (`:tieneDemo` y `:tienePlaytest`) que conectan `:Videojuego` → `:Lanzamiento`. La razón es que una demo o un playtest siguen siendo lanzamientos (tienen plataforma, editor, fecha), y la diferencia con un lanzamiento completo es semántica (el propósito de la entrega), no estructural. Usar propiedades diferenciadas evita tener que duplicar la definición de `:Lanzamiento` para cada subtipo.
+
+La detección se hace sobre los nombres de Steam: si el nombre termina en "playtest" se conecta vía `:tienePlaytest`; si contiene " demo " como palabra completa, vía `:tieneDemo`. Esta detección se documenta como decisión de diseño — no como validación de datos — porque los 5,215 playtests de Steam son entradas legítimas del catálogo, no errores.
+
+### 5.4. Unión de géneros entre fuentes
+
+Los géneros se integran **uniendo** los valores de todas las fuentes disponibles para un mismo `:Videojuego`, no priorizando una fuente sobre otra. Si vgsales reporta "Action" y Steam reporta ["Action", "FPS"], el grafo contendrá tanto `:G_Action` como `:G_FPS`. Esto maximiza la información disponible y evita descartar datos por decisión arbitraria de prioridad.
+
+### 5.5. Desarrollador solo desde Steam y consolas
+
+vgsales no tiene columna de desarrollador. Por lo tanto, `:desarrolladoPor` solo se puebla desde los campos `developers` de Steam y de los JSON de consolas (que están 100% poblados). Si ninguna de esas fuentes tiene un juego, el `:Videojuego` simplemente no tendrá tripleta de desarrollador, lo cual es correcto semánticamente (ausencia de dato no es dato incorrecto).
+
+### 5.6. Editor "Unknown" en vgsales
+
+203 filas de vgsales tienen `Publisher = "Unknown"` como string literal (no como NaN). Se trata como equivalente a nulo: no se genera tripleta `:publicadoPor`. Esto evita contaminar el grafo con un editor ficticio.
+
+### 5.7. Duplicados exactos en vgsales
+
+Se encontraron 5 casos de duplicados `Name+Platform` (10 filas en total) en vgsales. Entre ellos, "Wii de Asobu: Metroid Prime" tiene dos filas idénticas (un error de captura). El script de materialización detecta duplicados exactos y genera un solo `:Lanzamiento`. Los casos donde las filas duplicadas difieren en año o ventas (como "Need for Speed: Most Wanted" con versiones 2005 y 2012) se mantienen como lanzamientos separados.
+
+### 5.8. Limpieza de editores en Switch
+
+Los publishers de Switch contienen prefijos regionales en algunos casos (`"JP: G-Mode"`, `"WW: HandyGames"`). Se eliminan los prefijos `"JP: "` y `"WW: "` para extraer solo el nombre del editor antes de crear la instancia `:Editor`.
+
+### 5.9. Ventas con monto cero omitidas
+
+En vgsales, algunas celdas de ventas regionales tienen valor `0.0` (p. ej., `EU_Sales = 0.00` para DOOM en GBA). No se generan tripletas `:VentaRegional` con `:monto 0.0` porque ese valor no aporta información — indica ausencia de venta registrada, no una venta efectiva de cero unidades. Solo se crean cuando `monto > 0`.
+
+### 5.10. `estimated_owners` de Steam excluido del modelo
+
+El dataset de Steam incluye la columna `estimated_owners` con rangos estimados de propietarios (ej. `"10000000 - 20000000"`), pero **no se incorporó al grafo RDF**. La razón es que el 14.4% de los registros tienen el valor placeholder `"0 - 0"` (sin información real), y el resto son rangos textuales que requerirían un modelo intermedio (valor mínimo, valor máximo) para representarse adecuadamente en RDF. Dado que no hay un caso de uso definido que requiera estos datos para las consultas planificadas, se optó por excluirlos y mantener el modelo más simple. Las columnas efectivamente usadas de Steam son las 12 definidas en `STEAM_COLS` en `materializar.py`.
+
+---
+
+
+
+## 6. Manejo de colisiones de nombre entre fuentes
+
+### 6.1. El problema
+
+vgsales contiene 16.598 filas que se agrupan en 11.493 nombres únicos de juego. Al inspeccionar los datos, se encontraron **75 nombres** que tienen lanzamientos con una brecha de 10 años o más entre la versión más antigua y la más reciente. Esto puede indicar dos situaciones:
+
+1. **Ports/remakes del mismo juego**: el mismo título se relanza años después en otra plataforma (p. ej., "Final Fantasy" de 1987 en NES portado a WonderSwan en 2000).
+2. **Reboots/secuelas con el mismo nombre**: un juego nuevo que reutiliza el nombre de una entrega anterior (p. ej., "Mortal Kombat" 1992 arcade vs. Mortal Kombat 2011 reboot).
+
+### 6.2. Metodología de verificación
+
+Para cada nombre con brecha ≥10 años, se examinaron:
+- Años de lanzamiento por plataforma
+- Editor/Publisher (cambios de editor pueden indicar juego distinto)
+- Cruce con otras fuentes (Steam, consolas) — si coinciden, es el mismo juego; si no, puede ser otro
+- Conocimiento de dominio (saga, historia de la franquicia)
+
+Se verificaron manualmente los 13 casos más ambiguos:
+
+| Nombre | Años | Decisión | Justificación |
+|--------|------|----------|---------------|
+| **Sonic the Hedgehog** | 1991 GEN, 2006 PS3/X360 | Juegos distintos | Sonic '06 es un reboot completo, no un port |
+| **Mortal Kombat** | 1992 GEN, 2011 PS3/X360 | Juegos distintos | Reboot de 2011 por NetherRealm |
+| **Syndicate** | 1992 PC, 2012 X360/PS3 | Juegos distintos | Isométrico original vs. FPS de Starbreeze |
+| **Spider-Man** | 1981 2600, 2000 PS1 | Juegos distintos | Atari 2600 genérico vs. Neversoft |
+| **Battlezone** | 1982 2600, 2006 PSP | Juegos distintos | Arcade vectorial vs. FPS de Atari |
+| **Defender** | 1980 2600, 2002 PS2/GC/XB | Juegos distintos | Arcade clásico vs. FPS de Midway |
+| **Asteroids** | 1980 2600, 1998 PS | Juegos distintos | Arcade vs. remake 3D |
+| **Castlevania** | 1986 NES, 1999 N64 | Juegos distintos | Original vs. Castlevania 64 |
+| **Bomberman** | 1985 NES, 2005-2008 | Juegos distintos | Distintas entregas de la saga |
+| **NBA Jam** | 1992 GEN, 2003-2010 | Juegos distintos | Secuelas/reboots |
+| **Resident Evil** | 1996 PS, 2006 PS3 | Mismo juego | Ports/remasters del mismo RE1 |
+| **Final Fantasy** | 1987 NES, 2000 WS | Mismo juego | Port a WonderSwan |
+| **Monopoly** | 1994-2010 | Mismo juego | Mismo juego de mesa siempre |
+
+### 6.3. Decisión final
+
+De los 75 casos, la mayoría son juegos distintos (reboots) y no ports del mismo título. Sin embargo, se optó por **no separarlos automáticamente** y tratar cada nombre como un solo `:Videojuego` con múltiples `:Lanzamiento`, con UNA SOLA excepción manual:
+
+- **DOOM**: separado en dos `:Videojuego` (`:V_doom` para 1993 con `:nombre "DOOM"` y `:V_doom_2016` para 2016 con `:nombre "DOOM (2016)"`), porque está confirmado entre fuentes (vgsales tiene el original de 1993, Steam y consolas JSON tienen el reboot de 2016) y es el único caso donde el mismo nombre cruza fuentes representando juegos claramente distintos. Además, vgsales ya tiene una entrada separada con el nombre `"Doom (2016)"`, lo que refuerza la separación.
+
+**Justificación de la decisión:**
+
+1. **Consistencia**: aplicar separación automática por brecha de años requeriría un umbral arbitrario y conocimiento experto de dominio para cada caso (saber si "Sonic '06" es reboot o port). El criterio "un nombre = un Videojuego" es simple, reproducible y verificable.
+2. **Precisión de la fuente**: vgsales no distingue entregas bajo el mismo nombre. Si la fuente original las agrupa, el grafo respeta esa decisión en lugar de reinterpretarla.
+3. **La información no se pierde**: el grafo captura la diferencia entre lanzamientos a través de las fechas (`:fechaLanzamiento`), plataformas (`:enPlataforma`) y editores (`:publicadoPor`). Una consulta SPARQL puede distinguir el DOOM de 1993 del de 2016 por su año, sin necesidad de separar los `:Videojuego`.
+4. **DOOM es el único caso con brecha ≥10 años que cruza las 5 fuentes**: 17 nombres normalizados aparecen en las 5 fuentes (vgsales, Steam, Xbox, PlayStation, Switch), pero solo DOOM lo hace con años notablemente distintos (1992-2001 vs. 2016-2019). Los otros 16 (como "alien isolation" o "bayonetta") son el mismo juego en distintas plataformas. Separar DOOM manualmente es un costo bajo con beneficio claro de desambiguación por ser el único homónimo cross-source con brecha significativa.
+
+---
+
+## 7. Nota sobre el orden del proceso
+
+El enunciado del proyecto establece: *"Diseñe primero todas las consultas que deberá responder el grafo de conocimiento antes de iniciar el proceso de integración"*. En este proyecto, las consultas SPARQL se diseñaron **después** de la materialización del grafo y no antes. La razón es que el diseño de consultas significativas requiere conocimiento preciso de la estructura de URIs, propiedades y datos realmente disponibles en el grafo — información que solo está disponible una vez completada la integración. Diseñar las consultas antes habría resultado en consultas genéricas o hipotéticas que probablemente no funcionarían contra el grafo real sin ajustes posteriores. Para mitigar esta desviación, las consultas se diseñaron en paralelo con la ontología, utilizando los esquemas conocidos de las fuentes como referencia, y se ajustaron contra el grafo generado para garantizar que devuelven resultados correctos.

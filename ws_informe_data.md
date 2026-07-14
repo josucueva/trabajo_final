@@ -1,5 +1,8 @@
 # Informe Técnico Integral de Fuentes de Datos para Proyecto de Grafo de Conocimiento sobre Videojuegos
 
+> **⚠️ Documento histórico (análisis teórico inicial).**  
+> Este informe fue el primer análisis de las fuentes. La versión actualizada con hallazgos reales verificados contra los datos es `informe_consolidado.md`. Algunas recomendaciones aquí (como usar la versión `_cleaned` de Steam o eliminar palabras "The"/"Edition" de títulos) **no se implementaron** en la solución final. Consultar `informe_consolidado.md` para el estado real del proyecto.
+
 **Fecha de elaboración:** 12 de julio de 2026  
 **Versión:** 3.0 (Definitiva, con correcciones)  
 **Propósito:** Este documento describe de manera exhaustiva y detallada todas las fuentes de datos disponibles para la construcción de un grafo de conocimiento (RDF) en el dominio de los videojuegos. El informe incluye la estructura, contenido, formatos, tipos de datos, valores posibles, problemas de calidad cuantificados, relaciones entre fuentes y la evaluación de cumplimiento de los requisitos del proyecto. Sirve como contexto objetivo para la posterior fase de depuración, transformación e integración.
