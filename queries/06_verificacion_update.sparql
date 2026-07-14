@@ -1,0 +1,8 @@
+# Verificacion del UPDATE de Wii Sports
+PREFIX ex: <http://example.org/videojuegos#>
+SELECT ?v ?monto WHERE {
+  ?juego ex:nombre "Wii Sports" .
+  ?juego ex:tieneLanzamiento ?lanz .
+  ?lanz ex:tieneVenta ?v .
+  ?v ex:monto ?monto .
+}

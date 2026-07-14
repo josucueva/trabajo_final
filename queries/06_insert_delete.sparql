@@ -1,0 +1,12 @@
+# 6. INSERT / DELETE / UPDATE
+# Corregir venta regional de Wii Sports (NA: 41.49 -> 41.5)
+# DELETE + INSERT se ejecutan juntos como un solo UPDATE
+PREFIX ex: <http://example.org/videojuegos#>
+DELETE { ?v ex:monto 41.49 }
+INSERT { ?v ex:monto 41.50 }
+WHERE {
+  ?juego ex:nombre "Wii Sports" .
+  ?juego ex:tieneLanzamiento ?lanz .
+  ?lanz ex:tieneVenta ?v .
+  ?v ex:monto 41.49 .
+}

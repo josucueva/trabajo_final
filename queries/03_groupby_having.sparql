@@ -1,0 +1,14 @@
+# 3. GROUP BY + HAVING
+# Estudios que desarrollaron para >= 2 plataformas distintas
+PREFIX ex: <http://example.org/videojuegos#>
+SELECT ?desarrollador (COUNT(DISTINCT ?plataforma) AS ?plataformas) WHERE {
+  ?dev a ex:Desarrollador ;
+       ex:nombre ?desarrollador .
+  ?juego ex:desarrolladoPor ?dev ;
+         ex:tieneLanzamiento ?lanz .
+  ?lanz ex:enPlataforma ?plataforma .
+}
+GROUP BY ?desarrollador
+HAVING (?plataformas >= 2)
+ORDER BY DESC(?plataformas)
+LIMIT 20

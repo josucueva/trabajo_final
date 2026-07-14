@@ -5,7 +5,7 @@ El objetivo del proyecto es crear un grafo de conocimiento a partir de al menos 
 - 25%: propuesta de datos
 - 65%: solución técnica
 - 10%: presentación
-El proyecto podrá ser realizado en grupos de hasta dos personas. Las evidencias que respalden el desarrollo del proyecto serán sustentadas del lunes 14 al jueves 17 de julio (previo sorteo)
+  El proyecto podrá ser realizado en grupos de hasta dos personas. Las evidencias que respalden el desarrollo del proyecto serán sustentadas del lunes 14 al jueves 17 de julio (previo sorteo)
 
 ### Descripción:
 
@@ -15,6 +15,7 @@ Una vez completado el proceso de transformación, se cargarán tanto el esquema 
 
 - Siéntase libre de utilizar cualquier método disponible para llevar a cabo las tareas solicitadas.
 - Diseñe primero todas las consultas que deberá responder el grafo de conocimiento antes de iniciar el proceso de integración.
+
 ### Restricciones:
 
 - Las fuentes de datos utilizadas deberán contener al menos cinco atributos o campos.

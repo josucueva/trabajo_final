@@ -1,0 +1,17 @@
+# 7. OPCIONAL - Grafos nombrados
+# Editores distintos entre fuentes para el mismo juego
+# Requiere cargar cada fuente en un grafo separado en GraphDB
+PREFIX ex: <http://example.org/videojuegos#>
+SELECT ?nombreJuego ?editorXbox ?editorPlaystation WHERE {
+  GRAPH ex:xbox {
+    ?juego ex:nombre ?nombreJuego ;
+           ex:tieneLanzamiento / ex:publicadoPor ?eXbox .
+  }
+  GRAPH ex:playstation {
+    ?juego ex:tieneLanzamiento / ex:publicadoPor ?ePs .
+  }
+  ?eXbox ex:nombre ?editorXbox .
+  ?ePs ex:nombre ?editorPlaystation .
+  FILTER (?editorXbox != ?editorPlaystation)
+}
+LIMIT 20

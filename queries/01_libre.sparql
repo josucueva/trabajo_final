@@ -1,0 +1,19 @@
+# 1. LIBRE
+# Juegos con fechas de lanzamiento por región + ventas
+PREFIX ex: <http://example.org/videojuegos#>
+SELECT ?nombre ?plataforma ?region ?fecha ?ventas WHERE {
+  ?juego a ex:Videojuego ;
+         ex:nombre ?nombre .
+  ?juego ex:tieneLanzamiento ?lanz .
+  ?lanz ex:enPlataforma ?plat .
+  ?plat ex:nombre ?plataforma .
+  ?lanz ex:fechaLanzamiento ?lr .
+  ?lr ex:region ?region ;
+      ex:fecha ?fecha .
+  OPTIONAL {
+    ?lanz ex:tieneVenta ?v .
+    ?v ex:monto ?ventas .
+  }
+}
+ORDER BY ?nombre ?region
+LIMIT 30

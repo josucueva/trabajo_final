@@ -1,0 +1,12 @@
+# 4b. PROPERTY PATHS con inferencia (rdfs:subClassOf*)
+# Lanzamientos en consolas usando la jerarquia Consola << Plataforma
+# Inferencia: Xbox, PlayStation y Switch son consolas sin enumerarlas explicitamente
+PREFIX ex:  <http://example.org/videojuegos#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?nombreJuego ?tipoPlataforma WHERE {
+  ?juego ex:nombre ?nombreJuego ;
+         ex:tieneLanzamiento / ex:enPlataforma ?p .
+  ?p a ?tipoPlataforma .
+  ?tipoPlataforma rdfs:subClassOf* ex:Consola .
+}
+LIMIT 30

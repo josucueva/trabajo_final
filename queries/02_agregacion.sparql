@@ -1,0 +1,15 @@
+# 2. AGREGACION (SUM)
+# Top 10 juegos mas vendidos con su desarrollador
+PREFIX ex: <http://example.org/videojuegos#>
+SELECT ?nombre (SUM(?monto) AS ?ventas_totales) ?desarrollador WHERE {
+  ?juego a ex:Videojuego ;
+         ex:nombre ?nombre ;
+         ex:desarrolladoPor ?dev .
+  ?dev ex:nombre ?desarrollador .
+  ?juego ex:tieneLanzamiento ?lanz .
+  ?lanz ex:tieneVenta ?v .
+  ?v ex:monto ?monto .
+}
+GROUP BY ?nombre ?desarrollador
+ORDER BY DESC(?ventas_totales)
+LIMIT 10

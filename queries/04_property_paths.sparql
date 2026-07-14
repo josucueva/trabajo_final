@@ -1,0 +1,10 @@
+# 4. PROPERTY PATHS (/)
+# Desarrolladores que publican sus propios juegos
+# Usa property path: Videojuego --tieneLanzamiento--> Lanzamiento --publicadoPor--> Editor
+PREFIX ex: <http://example.org/videojuegos#>
+SELECT DISTINCT ?dev ?nombre WHERE {
+  ?dev a ex:Desarrollador ; ex:nombre ?nombre .
+  ?juego ex:desarrolladoPor ?dev .
+  ?juego ex:tieneLanzamiento / ex:publicadoPor / ex:nombre ?nombre .
+}
+LIMIT 20

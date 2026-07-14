@@ -1,0 +1,10 @@
+# 5. FILTER NOT EXISTS
+# Juegos sin genero asignado
+# Caso real: Xbox 64.63% y PlayStation 87.14% de genre vacio
+PREFIX ex: <http://example.org/videojuegos#>
+SELECT ?juego ?nombre WHERE {
+  ?juego a ex:Videojuego ;
+         ex:nombre ?nombre .
+  FILTER NOT EXISTS { ?juego ex:perteneceAGenero ?genero . }
+}
+LIMIT 20
