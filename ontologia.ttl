@@ -163,3 +163,13 @@
     rdfs:range :LanzamientoRegional ;
     rdfs:label "fecha de lanzamiento" ;
     rdfs:comment "Fecha(s) de lanzamiento del juego por region" .
+
+:tieneDemo rdf:type owl:ObjectProperty ;
+    rdfs:domain :Videojuego ;
+    rdfs:range :Lanzamiento ;
+    rdfs:label "tuvo version demo" .
+
+:tienePlaytest rdf:type owl:ObjectProperty ;
+    rdfs:domain :Videojuego ;
+    rdfs:range :Lanzamiento ;
+    rdfs:label "tuvo version playtest" .
