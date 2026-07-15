@@ -57,7 +57,7 @@ trabajo_final/
 pip install -r requirements.txt
 ```
 
-## Evidencias para entrega
+## Evidencias
 
 | Evidencia | Archivo |
 |---|---|

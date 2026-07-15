@@ -31,7 +31,19 @@
 | Duplicados de nombre+plataforma | Ventas | Deduplicación por clave compuesta |
 | DOOM (1993) y DOOM (2016) | Todas | Desambiguación manual en código |
 
-## 4. Consultas
+## 4. Proceso de desarrollo
+
+1. **Análisis exploratorio** — Inspección de las 3 fuentes con scripts Python para cuantificar errores.
+2. **Ontología OWL** — Definición de 10 clases (Videojuego, Lanzamiento, Plataforma, Consola ⊑ Plataforma, etc.) y 17 propiedades.
+3. **Entity linking** — Normalización de nombres de juegos (minúsculas, sin puntuación) para matching exacto entre fuentes.
+4. **Materialización** — Script Python con rdflib que transforma las 3 fuentes a ~2.4M triples RDF en Turtle.
+5. **Validación SHACL** — 6 reglas (obligatoriedad, tipo literal, rango, shape cerrado, precio decimal, región permitida). 3,859 violaciones esperadas por género ausente en consolas.
+6. **Carga en GraphDB** — Esquema + datos cargados en GraphDB 10.7.0 vía Docker.
+7. **Consultas SPARQL** — 6 consultas obligatorias + 2 opcionales ejecutadas y verificadas.
+8. **Grafos nombrados** — Separación de datos por fuente para consultas con GRAPH.
+9. **Publicación web** — Dashboard desplegado en GitHub Pages.
+
+## 5. Consultas
 
 ### Consulta 1: Libre — Juegos con fechas de lanzamiento por región y ventas
 Recupera nombre, plataforma, región, fecha y ventas (OPTIONAL). Demuestra integración de las 3 fuentes.
@@ -164,7 +176,15 @@ Actualiza monto de 41.49 a 41.50. Se muestra el estado antes, la consulta de act
 
 ![Después del UPDATE](../evidence/queries/query-6/query-6-post.png)
 
-## 5. Carga en GraphDB
+### Consulta 7 (opcional): Grafos nombrados — Editores distintos entre fuentes
+
+Cada fuente se cargó en un grafo nombrado separado en GraphDB. La consulta cruza los grafos `ex:xbox` y `ex:playstation` para encontrar juegos cuyo editor difiere según la plataforma.
+
+![Grafos nombrados en GraphDB](../evidence/queries/query-7/grafos_nombrados.png)
+
+![Resultado consulta 7](../evidence/queries/query-7/consulta_grafos_nombrados.png)
+
+## 6. Carga en GraphDB
 
 El grafo `output/datos_integrados.ttl` se cargó en GraphDB 10.7.0 mediante Docker. Las siguientes capturas muestran el grafo funcional:
 
@@ -180,19 +200,7 @@ El grafo `output/datos_integrados.ttl` se cargó en GraphDB 10.7.0 mediante Dock
 
 ![Herencia Plataforma](../evidence/graphDB/class_hierarchy_b.png)
 
-## 6. Validación SHACL
+## 7. Publicación web y repositorio
 
-Se definieron 6 reglas SHACL en `ontology/validacion_shacl.ttl` y se ejecutaron contra el grafo final (`output/datos_integrados.ttl`) usando `pyshacl`.
-
-| # | Regla | Shape target | Violaciones |
-|---|-------|-------------|------------|
-| 1 | Videojuego debe tener al menos un género | `Videojuego` | **3,859** |
-| 2 | VentaRegional.monto debe ser xsd:decimal | `VentaRegional` | 0 |
-| 3 | Lanzamiento.metacriticScore entre 1 y 100 | `Lanzamiento` | 0 |
-| 4 | VentaRegional solo puede tener :region y :monto | `VentaRegional` | 0 |
-| 5 | Lanzamiento.precio debe ser xsd:decimal | `Lanzamiento` | 0 |
-| 6 | VentaRegional.region debe ser NA, EU, JP o Other | `VentaRegional` | 0 |
-
-**Resultado**: 3,859 violaciones, todas de la regla 1, correspondientes a juegos de Xbox (64.6% sin género) y PlayStation (87.1% sin género). Las reglas 2 a 6 pasaron sin violaciones, confirmando la consistencia de los datos transformados.
-
-El resultado completo se encuentra en `docs/resultado_validacion_shacl.txt`.
+- **Web desplegada:** [https://josucueva.github.io/trabajo_final/](https://josucueva.github.io/trabajo_final/)
+- **Repositorio:** [https://github.com/josucueva/trabajo_final](https://github.com/josucueva/trabajo_final)
