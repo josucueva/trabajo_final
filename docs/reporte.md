@@ -31,7 +31,7 @@
 | Duplicados de nombre+plataforma | Ventas | Deduplicación por clave compuesta |
 | DOOM (1993) y DOOM (2016) | Todas | Desambiguación manual en código |
 
-## Consultas
+## 4. Consultas
 
 ### Consulta 1: Libre — Juegos con fechas de lanzamiento por región y ventas
 Recupera nombre, plataforma, región, fecha y ventas (OPTIONAL). Demuestra integración de las 3 fuentes.
@@ -164,7 +164,23 @@ Actualiza monto de 41.49 a 41.50. Se muestra el estado antes, la consulta de act
 
 ![Después del UPDATE](../evidence/queries/query-6/query-6-post.png)
 
-## 4. Validación SHACL
+## 5. Carga en GraphDB
+
+El grafo `output/datos_integrados.ttl` se cargó en GraphDB 10.7.0 mediante Docker. Las siguientes capturas muestran el grafo funcional:
+
+**Vista de instancias de Videojuego** — nodos conectados por `rdf:type`:
+
+![Instancias de Videojuego](../evidence/graphDB/videojuego_instances_view.png)
+
+**Jerarquía de clases** — treemap con las 8 clases de la ontología y su cardinalidad relativa:
+
+![Jerarquía de clases](../evidence/graphDB/class_hierarchy.png)
+
+**Herencia Plataforma → Consola / PC** — detalle de la jerarquía `Consola ⊑ Plataforma`:
+
+![Herencia Plataforma](../evidence/graphDB/class_hierarchy_b.png)
+
+## 6. Validación SHACL
 
 Se definieron 6 reglas SHACL en `ontology/validacion_shacl.ttl` y se ejecutaron contra el grafo final (`output/datos_integrados.ttl`) usando `pyshacl`.
 
@@ -180,4 +196,3 @@ Se definieron 6 reglas SHACL en `ontology/validacion_shacl.ttl` y se ejecutaron 
 **Resultado**: 3,859 violaciones, todas de la regla 1, correspondientes a juegos de Xbox (64.6% sin género) y PlayStation (87.1% sin género). Las reglas 2 a 6 pasaron sin violaciones, confirmando la consistencia de los datos transformados.
 
 El resultado completo se encuentra en `docs/resultado_validacion_shacl.txt`.
-
