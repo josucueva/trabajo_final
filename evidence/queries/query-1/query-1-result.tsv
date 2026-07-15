@@ -1,0 +1,31 @@
+?nombre	?plataforma	?region	?fecha	?ventas
+! Shakabula *	PC	WW	"2023-10-13"^^<http://www.w3.org/2001/XMLSchema#date>	
+! That Bastard Is Trying To Steal Our Gold !	PC	WW	"2016-03-03"^^<http://www.w3.org/2001/XMLSchema#date>	
+! Wild Russia !	PC	WW	"2020-04-28"^^<http://www.w3.org/2001/XMLSchema#date>	
+!LABrpgUP!	PC	WW	"2018-06-13"^^<http://www.w3.org/2001/XMLSchema#date>	
+"\"BUTTS: The VR Experience\""	PC	WW	"2016-02-03"^^<http://www.w3.org/2001/XMLSchema#date>	
+"\"Glow Ball\" - The billiard puzzle game"	PC	WW	"2015-07-20"^^<http://www.w3.org/2001/XMLSchema#date>	
+"\"I Know This Place..?\"  chapter I (prologue)"	PC	WW	"2023-04-20"^^<http://www.w3.org/2001/XMLSchema#date>	
+"\"LIFE\" not found;"	PC	WW	"2022-06-23"^^<http://www.w3.org/2001/XMLSchema#date>	
+"\"Otherworldly: Beginning of the Rift\" Pre-Alpha"	PC	WW	"2024-09-16"^^<http://www.w3.org/2001/XMLSchema#date>	
+"\"draw a card\" -Simulator"	PC	WW	"2020-08-26"^^<http://www.w3.org/2001/XMLSchema#date>	
+#!/bin/bash	PC	WW	"2024-05-27"^^<http://www.w3.org/2001/XMLSchema#date>	
+#AkiRobots	PC	WW	"2020-12-04"^^<http://www.w3.org/2001/XMLSchema#date>	
+#BLUD	PC	WW	"2024-06-18"^^<http://www.w3.org/2001/XMLSchema#date>	
+#CuteSnake	PC	WW	"2018-03-15"^^<http://www.w3.org/2001/XMLSchema#date>	
+#CuteSnake 2	PC	WW	"2018-04-20"^^<http://www.w3.org/2001/XMLSchema#date>	
+#DRIVE Rally	PC	WW	"2024-09-25"^^<http://www.w3.org/2001/XMLSchema#date>	
+#KILLALLZOMBIES	PlayStation	AU	"2014-10-28"^^<http://www.w3.org/2001/XMLSchema#date>	
+#KILLALLZOMBIES	Xbox	AU	"2016-08-09"^^<http://www.w3.org/2001/XMLSchema#date>	
+#KILLALLZOMBIES	PlayStation	EU	"2014-10-28"^^<http://www.w3.org/2001/XMLSchema#date>	
+#KILLALLZOMBIES	Xbox	EU	"2016-08-09"^^<http://www.w3.org/2001/XMLSchema#date>	
+#KILLALLZOMBIES	PlayStation	NA	"2014-11-12"^^<http://www.w3.org/2001/XMLSchema#date>	
+#KILLALLZOMBIES	Xbox	NA	"2016-08-09"^^<http://www.w3.org/2001/XMLSchema#date>	
+#KILLALLZOMBIES	PC	WW	"2016-08-10"^^<http://www.w3.org/2001/XMLSchema#date>	
+#SelfieTennis	PC	WW	"2016-04-01"^^<http://www.w3.org/2001/XMLSchema#date>	
+#SkiJump	PC	WW	"2019-06-28"^^<http://www.w3.org/2001/XMLSchema#date>	
+#Snake2 DX: Reawakening	PC	WW	"2021-02-28"^^<http://www.w3.org/2001/XMLSchema#date>	
+#Wargames	Xbox	AU	"2018-07-31"^^<http://www.w3.org/2001/XMLSchema#date>	
+#Wargames	Xbox	EU	"2018-07-31"^^<http://www.w3.org/2001/XMLSchema#date>	
+#Wargames	Xbox	NA	"2018-07-31"^^<http://www.w3.org/2001/XMLSchema#date>	
+#monstercakes	PC	WW	"2017-05-05"^^<http://www.w3.org/2001/XMLSchema#date>	
