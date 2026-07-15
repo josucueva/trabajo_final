@@ -57,14 +57,6 @@ trabajo_final/
 pip install -r requirements.txt
 ```
 
-## Uso
-
-1. **Materializar**: `python src/materializar.py`
-2. **Validar TTL**: `python src/validar_ttl.py ontology/ontologia.ttl`
-3. **Cargar en GraphDB**: importar `ontology/ontologia.ttl` + `output/datos_integrados.ttl`
-4. **Validar SHACL**: cargar `ontology/validacion_shacl.ttl` en Validate → SHACL
-5. **Consultar**: ejecutar los archivos `.sparql` en el SPARQL editor de GraphDB
-
 ## Evidencias para entrega
 
 | Evidencia | Archivo |
