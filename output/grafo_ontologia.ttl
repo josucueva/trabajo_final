@@ -1,0 +1,159 @@
+@prefix : <http://example.org/videojuegos#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+:Consola a owl:Class ;
+    rdfs:label "Consola" ;
+    rdfs:comment "Plataforma de tipo consola (Xbox, PlayStation, Switch)" ;
+    rdfs:subClassOf :Plataforma .
+
+:PC a owl:Class ;
+    rdfs:label "PC" ;
+    rdfs:comment "Plataforma de tipo PC (Windows, Mac, Linux)" ;
+    rdfs:subClassOf :Plataforma .
+
+:desarrolladoPor a owl:ObjectProperty ;
+    rdfs:label "desarrollado por" ;
+    rdfs:comment "Estudio o empresa que desarrollo el videojuego" ;
+    rdfs:domain :Videojuego ;
+    rdfs:range :Desarrollador .
+
+:enPlataforma a owl:ObjectProperty ;
+    rdfs:label "en plataforma" ;
+    rdfs:comment "Plataforma en la que se publico el lanzamiento" ;
+    rdfs:domain :Lanzamiento ;
+    rdfs:range :Plataforma .
+
+:fecha a owl:DatatypeProperty ;
+    rdfs:label "fecha" ;
+    rdfs:comment "Fecha de lanzamiento en formato ISO" ;
+    rdfs:domain :LanzamientoRegional ;
+    rdfs:range xsd:date .
+
+:fechaLanzamiento a owl:ObjectProperty ;
+    rdfs:label "fecha de lanzamiento" ;
+    rdfs:comment "Fecha(s) de lanzamiento del juego por region" ;
+    rdfs:domain :Lanzamiento ;
+    rdfs:range :LanzamientoRegional .
+
+:metacriticScore a owl:DatatypeProperty ;
+    rdfs:label "puntuacion Metacritic" ;
+    rdfs:comment "Puntuacion de Metacritic (1-100; 0 indica ausencia de dato)" ;
+    rdfs:domain :Lanzamiento ;
+    rdfs:range xsd:integer .
+
+:monto a owl:DatatypeProperty ;
+    rdfs:label "monto" ;
+    rdfs:comment "Valor de ventas en millones de unidades" ;
+    rdfs:domain :VentaRegional ;
+    rdfs:range xsd:decimal .
+
+:nombre a owl:DatatypeProperty ;
+    rdfs:label "nombre" ;
+    rdfs:comment "Nombre legible de cualquier entidad" ;
+    rdfs:domain owl:Thing ;
+    rdfs:range xsd:string .
+
+:peakCcu a owl:DatatypeProperty ;
+    rdfs:label "pico de concurrentes" ;
+    rdfs:comment "Maximo de jugadores concurrentes en Steam" ;
+    rdfs:domain :Lanzamiento ;
+    rdfs:range xsd:integer .
+
+:perteneceAGenero a owl:ObjectProperty ;
+    rdfs:label "pertenece a genero" ;
+    rdfs:comment "Genero(s) al que pertenece el videojuego" ;
+    rdfs:domain :Videojuego ;
+    rdfs:range :Genero .
+
+:precio a owl:DatatypeProperty ;
+    rdfs:label "precio" ;
+    rdfs:comment "Precio en USD" ;
+    rdfs:domain :Lanzamiento ;
+    rdfs:range xsd:decimal .
+
+:publicadoPor a owl:ObjectProperty ;
+    rdfs:label "publicado por" ;
+    rdfs:comment "Empresa que publico el lanzamiento en la plataforma" ;
+    rdfs:domain :Lanzamiento ;
+    rdfs:range :Editor .
+
+:region a owl:DatatypeProperty ;
+    rdfs:label "region" ;
+    rdfs:comment "Codigo de region (NA, EU, JP, Other)" ;
+    rdfs:domain owl:Thing ;
+    rdfs:range xsd:string .
+
+:reseñasNegativas a owl:DatatypeProperty ;
+    rdfs:label "resenas negativas" ;
+    rdfs:comment "Numero de resenas negativas en Steam" ;
+    rdfs:domain :Lanzamiento ;
+    rdfs:range xsd:integer .
+
+:reseñasPositivas a owl:DatatypeProperty ;
+    rdfs:label "resenas positivas" ;
+    rdfs:comment "Numero de resenas positivas en Steam" ;
+    rdfs:domain :Lanzamiento ;
+    rdfs:range xsd:integer .
+
+:tiempoJuego a owl:DatatypeProperty ;
+    rdfs:label "tiempo de juego" ;
+    rdfs:comment "Tiempo promedio jugado en minutos" ;
+    rdfs:domain :Lanzamiento ;
+    rdfs:range xsd:integer .
+
+:tieneDemo a owl:ObjectProperty ;
+    rdfs:label "tuvo version demo" ;
+    rdfs:domain :Videojuego ;
+    rdfs:range :Lanzamiento .
+
+:tieneLanzamiento a owl:ObjectProperty ;
+    rdfs:label "tiene lanzamiento" ;
+    rdfs:comment "Asocia un videojuego con sus lanzamientos en distintas plataformas" ;
+    rdfs:domain :Videojuego ;
+    rdfs:range :Lanzamiento .
+
+:tienePlaytest a owl:ObjectProperty ;
+    rdfs:label "tuvo version playtest" ;
+    rdfs:domain :Videojuego ;
+    rdfs:range :Lanzamiento .
+
+:tieneVenta a owl:ObjectProperty ;
+    rdfs:label "tiene venta" ;
+    rdfs:comment "Ventas regionales asociadas al lanzamiento" ;
+    rdfs:domain :Lanzamiento ;
+    rdfs:range :VentaRegional .
+
+:Desarrollador a owl:Class ;
+    rdfs:label "Desarrollador" ;
+    rdfs:comment "Estudio o empresa que desarrollo el videojuego" .
+
+:Editor a owl:Class ;
+    rdfs:label "Editor" ;
+    rdfs:comment "Empresa que publico el lanzamiento en una plataforma" .
+
+:Genero a owl:Class ;
+    rdfs:label "Genero" ;
+    rdfs:comment "Categoria o genero de un videojuego" .
+
+:LanzamientoRegional a owl:Class ;
+    rdfs:label "Lanzamiento regional" ;
+    rdfs:comment "Fecha de lanzamiento en una region especifica" .
+
+:VentaRegional a owl:Class ;
+    rdfs:label "Venta regional" ;
+    rdfs:comment "Ventas de un lanzamiento en una region especifica" .
+
+:Plataforma a owl:Class ;
+    rdfs:label "Plataforma" ;
+    rdfs:comment "Clase padre para todos los tipos de plataforma" .
+
+:Videojuego a owl:Class ;
+    rdfs:label "Videojuego" ;
+    rdfs:comment "Obra intelectual, independiente de la plataforma" .
+
+:Lanzamiento a owl:Class ;
+    rdfs:label "Lanzamiento" ;
+    rdfs:comment "Edicion especifica de un videojuego en una plataforma concreta" .
+
