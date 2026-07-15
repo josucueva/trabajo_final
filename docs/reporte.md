@@ -164,3 +164,20 @@ Actualiza monto de 41.49 a 41.50. Se muestra el estado antes, la consulta de act
 
 ![Después del UPDATE](../evidence/queries/query-6/query-6-post.png)
 
+## 4. Validación SHACL
+
+Se definieron 6 reglas SHACL en `ontology/validacion_shacl.ttl` y se ejecutaron contra el grafo final (`output/datos_integrados.ttl`) usando `pyshacl`.
+
+| # | Regla | Shape target | Violaciones |
+|---|-------|-------------|------------|
+| 1 | Videojuego debe tener al menos un género | `Videojuego` | **3,859** |
+| 2 | VentaRegional.monto debe ser xsd:decimal | `VentaRegional` | 0 |
+| 3 | Lanzamiento.metacriticScore entre 1 y 100 | `Lanzamiento` | 0 |
+| 4 | VentaRegional solo puede tener :region y :monto | `VentaRegional` | 0 |
+| 5 | Lanzamiento.precio debe ser xsd:decimal | `Lanzamiento` | 0 |
+| 6 | VentaRegional.region debe ser NA, EU, JP o Other | `VentaRegional` | 0 |
+
+**Resultado**: 3,859 violaciones, todas de la regla 1, correspondientes a juegos de Xbox (64.6% sin género) y PlayStation (87.1% sin género). Las reglas 2 a 6 pasaron sin violaciones, confirmando la consistencia de los datos transformados.
+
+El resultado completo se encuentra en `docs/resultado_validacion_shacl.txt`.
+

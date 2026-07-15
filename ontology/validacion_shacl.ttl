@@ -14,13 +14,12 @@
 
 :VideojuegoShape a sh:NodeShape ;
     sh:targetClass :Videojuego ;
-    sh:message "Todo Videojuego debe tener al menos un genero asignado" ;
-    sh:severity sh:Violation ;
-    sh:property [
-        sh:path :perteneceAGenero ;
-        sh:minCount 1 ;
-        sh:message "El videojuego no tiene ningun genero asignado"
-    ] .
+    sh:property :propGenero .
+
+:propGenero a sh:PropertyShape ;
+    sh:path :perteneceAGenero ;
+    sh:minCount 1 ;
+    sh:message "El videojuego no tiene ningun genero asignado" .
 
 
 # ====================================================================
@@ -33,12 +32,12 @@
 
 :VentaRegionalMontoShape a sh:NodeShape ;
     sh:targetClass :VentaRegional ;
-    sh:message "VentaRegional debe tener monto como xsd:decimal" ;
-    sh:property [
-        sh:path :monto ;
-        sh:datatype xsd:decimal ;
-        sh:message "El monto de VentaRegional debe ser un valor decimal (xsd:decimal)"
-    ] .
+    sh:property :propMonto .
+
+:propMonto a sh:PropertyShape ;
+    sh:path :monto ;
+    sh:datatype xsd:decimal ;
+    sh:message "El monto de VentaRegional debe ser un valor decimal (xsd:decimal)" .
 
 
 # ====================================================================
@@ -51,13 +50,13 @@
 
 :MetacriticScoreShape a sh:NodeShape ;
     sh:targetClass :Lanzamiento ;
-    sh:message "metacriticScore debe estar entre 1 y 100" ;
-    sh:property [
-        sh:path :metacriticScore ;
-        sh:minInclusive 1 ;
-        sh:maxInclusive 100 ;
-        sh:message "metacriticScore debe ser un entero entre 1 y 100 (0 indica ausencia de dato)"
-    ] .
+    sh:property :propMetacritic .
+
+:propMetacritic a sh:PropertyShape ;
+    sh:path :metacriticScore ;
+    sh:minInclusive 1 ;
+    sh:maxInclusive 100 ;
+    sh:message "metacriticScore debe ser un entero entre 1 y 100 (0 indica ausencia de dato)" .
 
 
 # ====================================================================
@@ -73,18 +72,53 @@
     sh:targetClass :VentaRegional ;
     sh:closed true ;
     sh:ignoredProperties ( rdf:type ) ;
-    sh:property [
-        sh:path :region ;
-        sh:minCount 1 ;
-        sh:maxCount 1 ;
-        sh:datatype xsd:string ;
-        sh:message "Toda VentaRegional debe tener exactamente una region"
-    ] ;
-    sh:property [
-        sh:path :monto ;
-        sh:minCount 1 ;
-        sh:maxCount 1 ;
-        sh:datatype xsd:decimal ;
-        sh:message "Toda VentaRegional debe tener exactamente un monto decimal"
-    ] ;
-    sh:message "VentaRegional solo puede tener las propiedades :region y :monto (ademas de rdf:type)" .
+    sh:property :propRegion ;
+    sh:property :propMontoClosed .
+
+:propRegion a sh:PropertyShape ;
+    sh:path :region ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:string ;
+    sh:message "Toda VentaRegional debe tener exactamente una region" .
+
+:propMontoClosed a sh:PropertyShape ;
+    sh:path :monto ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:datatype xsd:decimal ;
+    sh:message "Toda VentaRegional debe tener exactamente un monto decimal" .
+
+
+# ====================================================================
+# VALIDACIÓN 5: TIPO DE LITERAL
+# Lanzamiento.precio debe ser xsd:decimal
+# ====================================================================
+# Sustento: 100% de precios en Steam son decimales consistentes
+# ====================================================================
+
+:PrecioDecimalShape a sh:NodeShape ;
+    sh:targetClass :Lanzamiento ;
+    sh:property :propPrecio .
+
+:propPrecio a sh:PropertyShape ;
+    sh:path :precio ;
+    sh:datatype xsd:decimal ;
+    sh:message "precio debe ser un valor decimal (xsd:decimal)" .
+
+
+# ====================================================================
+# VALIDACIÓN 6: VALORES PERMITIDOS (ENUM)
+# VentaRegional.region solo puede ser NA, EU, JP o Other
+# ====================================================================
+# Sustento: vgsales solo usa esas 4 regiones en columnas de ventas
+# ====================================================================
+
+:RegionInShape a sh:NodeShape ;
+    sh:targetClass :VentaRegional ;
+    sh:property :propRegionIn .
+
+:propRegionIn a sh:PropertyShape ;
+    sh:path :region ;
+    sh:in ( "NA" "EU" "JP" "Other" ) ;
+    sh:message "region solo puede ser NA, EU, JP o Other" .

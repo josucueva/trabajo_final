@@ -1,6 +1,6 @@
 """
 Validador SHACL para datos_integrados.ttl usando pyshacl.
-Ejecuta las 4 reglas definidas en ontology/validacion_shacl.ttl
+Ejecuta las 6 reglas definidas en ontology/validacion_shacl.ttl
 y guarda el resultado en docs/resultado_validacion_shacl.txt
 
 Uso:
@@ -9,14 +9,38 @@ Uso:
 
 import os
 import sys
+from collections import OrderedDict
 from pyshacl import validate
-from rdflib import Graph
+from rdflib import Graph, RDF, Namespace
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_DIR = os.path.dirname(BASE_DIR)
 ONTO_PATH = os.path.join(PROJECT_DIR, "ontology", "validacion_shacl.ttl")
 DATA_PATH = os.path.join(PROJECT_DIR, "output", "datos_integrados.ttl")
 OUTPUT_PATH = os.path.join(PROJECT_DIR, "docs", "resultado_validacion_shacl.txt")
+
+SH = Namespace("http://www.w3.org/ns/shacl#")
+
+# Mapeo de property/node shapes a numeros de regla
+SHAPE_A_REGLA = {
+    "propGenero": 1,
+    "propMonto": 2,
+    "propMetacritic": 3,
+    "propRegion": 4,
+    "propMontoClosed": 4,
+    "VentaRegionalClosedShape": 4,
+    "propPrecio": 5,
+    "propRegionIn": 6,
+}
+
+REGLA_ETIQUETAS = {
+    1: "1. Videojuego - genero obligatorio",
+    2: "2. VentaRegional - monto decimal",
+    3: "3. Lanzamiento - metacriticScore 1-100",
+    4: "4. VentaRegional - shape cerrado",
+    5: "5. Lanzamiento - precio decimal",
+    6: "6. VentaRegional - region NA/EU/JP/Other",
+}
 
 
 def main():
@@ -48,51 +72,35 @@ def main():
         advanced=False,
     )
 
+    violaciones_por_regla = {}
+    for s in results_graph.subjects(RDF.type, SH.ValidationResult):
+        for o in results_graph.objects(s, SH.sourceShape):
+            shape_name = str(o).split("#")[-1]
+            regla = SHAPE_A_REGLA.get(shape_name)
+            if regla:
+                violaciones_por_regla[regla] = violaciones_por_regla.get(regla, 0) + 1
+
+    total = sum(violaciones_por_regla.values())
+
     lines = []
     lines.append("=" * 60)
     lines.append("VALIDACION SHACL — datos_integrados.ttl")
     lines.append("=" * 60)
     lines.append(f"Conforms: {conforms}")
     lines.append("")
-
-    violations = list(results_graph.subjects())
-    lines.append(f"Total violaciones: {len(violations)}")
+    lines.append(f"{'Regla':<48} {'Violaciones':>10}")
+    lines.append("─" * 60)
+    for num, etiqueta in REGLA_ETIQUETAS.items():
+        count = violaciones_por_regla.get(num, 0)
+        lines.append(f"{etiqueta:<48} {count:>10,}")
+    lines.append("─" * 60)
+    lines.append(f"{'Total':<48} {total:>10,}")
     lines.append("")
 
-    # Agrupar violaciones por tipo para un resumen claro
-    from collections import Counter
-    tipos = Counter()
-    muestras = []
-    for r in violations:
-        path = None
-        msg = None
-        for s, p, o in results_graph.triples((r, None, None)):
-            pname = str(p).split("#")[-1] if "#" in str(p) else str(p).split("/")[-1]
-            if pname == "resultPath":
-                path = str(o).split("#")[-1] if "#" in str(o) else str(o)
-            if pname == "resultMessage":
-                msg = str(o)
-        key = f"{path}: {msg}" if msg else str(path)
-        tipos[key] += 1
-        if len(muestras) < 5:
-            focus = None
-            for s, p, o in results_graph.triples((r, None, None)):
-                pname = str(p).split("#")[-1] if "#" in str(p) else str(p).split("/")[-1]
-                if pname == "focusNode":
-                    focus = str(o)
-            muestras.append(f"  focusNode={focus}, path={path}, msg={msg}")
-
-    lines.append("Resumen por tipo de violacion:")
-    for tipo, count in tipos.most_common():
-        lines.append(f"  - [{count:>6}x] {tipo}")
-    lines.append("")
-    lines.append("Muestras de violaciones (primeras 5):")
-    for m in muestras:
-        lines.append(m)
-    lines.append("")
-    lines.append("NOTA: La regla 1 (Videojuego sin genero) genera ~30K violaciones")
-    lines.append("porque Xbox (64.6%) y PlayStation (87.1%) no tienen dato de genero.")
-    lines.append("Esto es un problema conocido de calidad de fuente, no del codigo.")
+    if total > 0:
+        lines.append("NOTA: Las violaciones de la regla 1 corresponden a")
+        lines.append("Xbox (64.6%) y PlayStation (87.1%) que no tienen dato de genero.")
+        lines.append("Es un problema conocido de calidad de fuente, no del codigo.")
 
     output = "\n".join(lines)
     print(output)

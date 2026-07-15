@@ -3,19 +3,17 @@ VALIDACION SHACL — datos_integrados.ttl
 ============================================================
 Conforms: False
 
-Total violaciones: 30877
+Regla                                            Violaciones
+────────────────────────────────────────────────────────────
+1. Videojuego - genero obligatorio                    3,859
+2. VentaRegional - monto decimal                          0
+3. Lanzamiento - metacriticScore 1-100                    0
+4. VentaRegional - shape cerrado                          0
+5. Lanzamiento - precio decimal                           0
+6. VentaRegional - region NA/EU/JP/Other                  0
+────────────────────────────────────────────────────────────
+Total                                                 3,859
 
-Resumen por tipo de violacion:
-  - [ 27013x] perteneceAGenero: El videojuego no tiene ningun genero asignado
-  - [  3864x] None
-
-Muestras de violaciones (primeras 5):
-  focusNode=http://example.org/videojuegos#V_gunsnwheels, path=perteneceAGenero, msg=El videojuego no tiene ningun genero asignado
-  focusNode=http://example.org/videojuegos#V_eternal_tombs, path=perteneceAGenero, msg=El videojuego no tiene ningun genero asignado
-  focusNode=http://example.org/videojuegos#V_sandustry, path=perteneceAGenero, msg=El videojuego no tiene ningun genero asignado
-  focusNode=http://example.org/videojuegos#V_u_6cfbfe3b5ec3, path=perteneceAGenero, msg=El videojuego no tiene ningun genero asignado
-  focusNode=http://example.org/videojuegos#V_knifeplayground_horror_battle_royale, path=perteneceAGenero, msg=El videojuego no tiene ningun genero asignado
-
-NOTA: La regla 1 (Videojuego sin genero) genera ~30K violaciones
-porque Xbox (64.6%) y PlayStation (87.1%) no tienen dato de genero.
-Esto es un problema conocido de calidad de fuente, no del codigo.
+NOTA: Las violaciones de la regla 1 corresponden a
+Xbox (64.6%) y PlayStation (87.1%) que no tienen dato de genero.
+Es un problema conocido de calidad de fuente, no del codigo.
