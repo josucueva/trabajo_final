@@ -61,7 +61,7 @@ pip install -r requirements.txt
 
 | Evidencia | Archivo |
 |---|---|
-| A — Justificacion | `docs/reporte.md` |
-| B — Scripts | `src/`, `analysis/` |
-| C — Turtle | `output/datos_integrados.ttl` |
-| D — Consultas SPARQL | `queries/` |
+| Justificacion | `docs/reporte.md` |
+| Scripts | `src/`, `analysis/` |
+| Turtle | `output/datos_integrados.ttl` |
+| Consultas SPARQL | `queries/` |
