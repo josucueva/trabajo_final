@@ -1,0 +1,21 @@
+============================================================
+VALIDACION SHACL — datos_integrados.ttl
+============================================================
+Conforms: False
+
+Total violaciones: 30877
+
+Resumen por tipo de violacion:
+  - [ 27013x] perteneceAGenero: El videojuego no tiene ningun genero asignado
+  - [  3864x] None
+
+Muestras de violaciones (primeras 5):
+  focusNode=http://example.org/videojuegos#V_gunsnwheels, path=perteneceAGenero, msg=El videojuego no tiene ningun genero asignado
+  focusNode=http://example.org/videojuegos#V_eternal_tombs, path=perteneceAGenero, msg=El videojuego no tiene ningun genero asignado
+  focusNode=http://example.org/videojuegos#V_sandustry, path=perteneceAGenero, msg=El videojuego no tiene ningun genero asignado
+  focusNode=http://example.org/videojuegos#V_u_6cfbfe3b5ec3, path=perteneceAGenero, msg=El videojuego no tiene ningun genero asignado
+  focusNode=http://example.org/videojuegos#V_knifeplayground_horror_battle_royale, path=perteneceAGenero, msg=El videojuego no tiene ningun genero asignado
+
+NOTA: La regla 1 (Videojuego sin genero) genera ~30K violaciones
+porque Xbox (64.6%) y PlayStation (87.1%) no tienen dato de genero.
+Esto es un problema conocido de calidad de fuente, no del codigo.
