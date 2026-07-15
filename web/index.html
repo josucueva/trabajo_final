@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Videojuegos — Grafo de Conocimiento</title>
+    <meta name="description" content="Grafo de conocimiento sobre videojuegos integrando ventas, metadatos de Steam y fechas de lanzamiento de consolas.">
+
+    <!-- JSON-LD: Ontologia y dataset -->
+    <script type="application/ld+json">
+    {
+        "@context": {
+            "@vocab": "http://schema.org/",
+            "owl": "http://www.w3.org/2002/07/owl#",
+            "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+            "videojuegos": "http://example.org/videojuegos#"
+        },
+        "@graph": [
+            {
+                "@type": "DefinedTermSet",
+                "name": "Ontologia de Videojuegos",
+                "description": "Ontologia OWL para modelar videojuegos, sus lanzamientos en distintas plataformas, ventas regionales y metricas digitales.",
+                "hasDefinedTerm": [
+                    { "name": "Videojuego", "description": "Obra intelectual independiente de la plataforma" },
+                    { "name": "Lanzamiento", "description": "Edicion especifica de un videojuego en una plataforma concreta" },
+                    { "name": "Plataforma", "description": "Clase padre para todos los tipos de plataforma" },
+                    { "name": "Consola", "description": "Subclase de Plataforma (Xbox, PlayStation, Switch)" },
+                    { "name": "PC", "description": "Subclase de Plataforma (Windows, Mac, Linux)" },
+                    { "name": "Genero", "description": "Categoria o genero de un videojuego" },
+                    { "name": "Desarrollador", "description": "Estudio o empresa que desarrollo el videojuego" },
+                    { "name": "Editor", "description": "Empresa que publico el lanzamiento en una plataforma" },
+                    { "name": "VentaRegional", "description": "Ventas de un lanzamiento en una region especifica" },
+                    { "name": "LanzamientoRegional", "description": "Fecha de lanzamiento en una region especifica" }
+                ]
+            },
+            {
+                "@type": "Dataset",
+                "name": "Videojuegos Knowledge Graph",
+                "description": "Grafo de conocimiento integrando vgsales, Steam y consolas (Xbox, PlayStation, Switch). Contiene mas de 100,000 videojuegos con 2.4 millones de tripletas RDF.",
+                "version": "1.0"
+            }
+        ]
+    }
+    </script>
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navegacion -->
+    <header class="site-header">
+        <div class="container">
+            <div class="header-inner">
+                <a href="#home" class="logo" data-nav>Videojuegos</a>
+                <nav class="main-nav" aria-label="Navegacion principal">
+                    <ul>
+                        <li><a href="#home" data-nav>Inicio</a></li>
+                        <li><a href="#ontologia" data-nav>Ontologia</a></li>
+                        <li><a href="#queries" data-nav>Consultas</a></li>
+                        <li><a href="#datos" data-nav>Datos</a></li>
+                        <li><a href="#descargas" data-nav>Descargas</a></li>
+                        <li><a href="#acerca" data-nav>Acerca</a></li>
+                    </ul>
+                </nav>
+                <button class="nav-toggle" aria-label="Menu">&#9776;</button>
+            </div>
+            <div class="header-search">
+                <form id="search-form" autocomplete="off">
+                    <input type="text" id="search-input" placeholder="Buscar videojuego por nombre..." aria-label="Buscar videojuego">
+                    <button type="submit" aria-label="Buscar">Buscar</button>
+                </form>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenido principal -->
+    <main class="main-content" id="main-content">
+        <div class="container">
+            <div id="page-content"></div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="container">
+            <p>Web Semántica</p>
+        </div>
+    </footer>
+
+    <script src="js/data.js"></script>
+    <script src="js/sparql.js"></script>
+    <!-- search-index.js se carga dinamicamente en app.js cuando se necesita -->
+    <script src="js/app.js"></script>
+</body>
+</html>
